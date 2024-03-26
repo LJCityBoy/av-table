@@ -530,6 +530,15 @@ async-validator@^4.0.0:
   resolved "https://registry.npmjs.org/async-validator/-/async-validator-4.2.5.tgz#c96ea3332a521699d0afaaceed510a54656c6339"
   integrity sha512-7HhHjtERjqlNbZtqNqy2rckN/SpOOlmDliet+lP7k+eKZEjPk3DgyeU9lIXLdeLz0uBbbVp+9Qdow9wJWgwwfg==
 
+av-table@^0.0.1:
+  version "0.0.1"
+  resolved "https://registry.npmjs.org/av-table/-/av-table-0.0.1.tgz#0aa0bf4c3738fc532791528df9120fa9bad3c375"
+  integrity sha512-N7ZM2B4pMpkiUJdltxil50xsiXb69/SdWwfyEl8+mO0zoXuvdE4CZe2FOWQYPplzNMWFzExC6zWJ7H8V0blLUA==
+  dependencies:
+    ant-design-vue "3.2.20"
+    av-table "^2.0.0"
+    vue "^3.4.21"
+
 av-table@^2.0.0:
   version "2.0.0"
   resolved "https://registry.npmjs.org/av-table/-/av-table-2.0.0.tgz#f0addc72723161845cd507dd381ab9b8cb1bbaf1"
