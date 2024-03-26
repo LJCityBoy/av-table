@@ -1,0 +1,40 @@
+{
+  "name": "av-table",
+  "private": false,
+  "version": "0.0.1",
+  "type": "module",
+  "main": "dist/av-table.js",
+  "module": "dist/av-table.umd.cjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "package.json",
+    "README.md",
+    "dist"
+  ],
+  "author": "LJCityBoy",
+  "license": "MIT",
+  "description": "居于ant-design-vue封装的虚拟列表",
+  "keywords": [
+    "虚拟列表",
+    "大数据渲染",
+    "ant-design-vue table",
+    "Virtual List"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "ant-design-vue": "3.2.20",
+    "av-table": "^2.0.0",
+    "vue": "^3.4.21"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.4",
+    "typescript": "^5.2.2",
+    "vite": "^5.2.0",
+    "vite-plugin-dts": "^3.7.3",
+    "vue-tsc": "^2.0.6"
+  }
+}
