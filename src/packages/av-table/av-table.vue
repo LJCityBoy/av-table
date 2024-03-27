@@ -27,21 +27,7 @@
 <script lang="ts" setup>
 import { Table as VTable } from "ant-design-vue";
 import { SizeType } from "ant-design-vue/lib/config-provider";
-import {
-  onMounted,
-  onUnmounted,
-  ref,
-  computed,
-  PropType,
-  watch,
-  useAttrs,
-} from "vue";
-
-interface ScrollType {
-  x: string | number | true;
-  y: string | number;
-  scrollToFirstRowOnChange: boolean;
-}
+import { onMounted, onUnmounted, ref, computed, PropType, watch } from "vue";
 
 const props = defineProps({
   dataSource: {
@@ -62,7 +48,7 @@ const props = defineProps({
   },
 });
 
-const attrs = useAttrs();
+// const attrs = useAttrs();
 
 const yItemHeight = ref(0);
 
@@ -130,13 +116,7 @@ const initVir = () => {
       `.${virtualizedClass.value} .ant-table-body table`
     ) as HTMLDivElement;
     placeholderWrapper.value = document.createElement("div");
-    if (
-      attrs &&
-      Object.prototype.hasOwnProperty.call(attrs, "scroll") &&
-      Object.prototype.hasOwnProperty.call(attrs.scroll, "y")
-    ) {
-      scrollY.value = scrollY2Number((attrs.scroll as ScrollType).y);
-    }
+    scrollY.value = parentNode.value.clientHeight
     placeholderWrapper.value.style.height =
       yItemHeight.value * props.dataSource.length - scrollY.value + "px";
     parentNode.value.appendChild(placeholderWrapper.value);
@@ -144,44 +124,14 @@ const initVir = () => {
     parentNode.value.addEventListener("scroll", scrollEvent);
   }
 };
-//单位转换
-const scrollY2Number = (sy: string | number) => {
-  if (typeof sy === "string" && sy.endsWith("%")) {
-    const num = Number(sy.slice(0, sy.length - 1));
-    const parentElement = document.querySelector(
-      `.box-${virtualizedClass.value}`
-    ) as HTMLDivElement; // 获取父元素
-    return (num / 100) * parentElement.offsetHeight;
-  } else if (typeof sy === "string" && sy.endsWith("rem")) {
-    const num = Number(sy.slice(0, sy.length - 3));
-    return (
-      num *
-      parseFloat(window.getComputedStyle(document.documentElement).fontSize)
-    );
-  } else if (typeof sy === "string" && sy.endsWith("vh")) {
-    const num = Number(sy.slice(0, sy.length - 2));
-    return (num / 100) * document.body.offsetHeight;
-  } else if (typeof sy === "string" && sy.endsWith("px")) {
-    const num = Number(sy.slice(0, sy.length - 2));
-    return Number(num);
-  } else {
-    return Number(sy);
-  }
-};
 
 onMounted(() => {
   initVir();
   const observer = new MutationObserver(() => {
     if (currentHeight.value !== parentNode.value.clientHeight) {
-      if (
-        attrs &&
-        Object.prototype.hasOwnProperty.call(attrs, "scroll") &&
-        Object.prototype.hasOwnProperty.call(attrs.scroll, "y")
-      ) {
-        scrollY.value = scrollY2Number((attrs.scroll as ScrollType).y);
-        placeholderWrapper.value.style.height =
-          yItemHeight.value * props.dataSource.length - scrollY.value + "px";
-      }
+      scrollY.value = parentNode.value.clientHeight
+      placeholderWrapper.value.style.height =
+        yItemHeight.value * props.dataSource.length - scrollY.value + 'px'
       currentHeight.value = parentNode.value.clientHeight;
       screenHeight.value = parentNode.value.clientHeight;
       const startIdx = Math.floor(
@@ -243,14 +193,8 @@ watch(
 watch(
   () => props.dataSource,
   (val) => {
-    if (val) {
-      if (
-        attrs &&
-        Object.prototype.hasOwnProperty.call(attrs, "scroll") &&
-        Object.prototype.hasOwnProperty.call(attrs.scroll, "y")
-      ) {
-        scrollY.value = scrollY2Number((attrs.scroll as ScrollType).y);
-      }
+    if (val && props.virtualized) {
+      scrollY.value = parentNode.value.clientHeight
       placeholderWrapper.value.style.height =
         yItemHeight.value * props.dataSource.length - scrollY.value + "px";
       screenHeight.value = parentNode.value.clientHeight;
