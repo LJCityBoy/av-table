@@ -108,14 +108,17 @@ const renderList = computed(() => {
 
 //滚动触发时切割数据
 const scrollEvent = () => {
-  screenHeight.value = parentNode.value.clientHeight;
-  const startIdx = Math.floor(parentNode.value.scrollTop / yItemHeight.value);
-  const endIdx = startIdx + visibleCount.value;
-  range.value = [startIdx, endIdx];
-  const offset =
-    parentNode.value.scrollTop -
-    (parentNode.value.scrollTop % yItemHeight.value);
-  contentNode.value.style.transform = `translate3d(0, ${offset}px, 0)`;
+  // 性能优化一下
+  window.requestAnimationFrame(() => {
+    screenHeight.value = parentNode.value.clientHeight;
+    const startIdx = Math.floor(parentNode.value.scrollTop / yItemHeight.value);
+    const endIdx = startIdx + visibleCount.value;
+    range.value = [startIdx, endIdx];
+    const offset =
+      parentNode.value.scrollTop -
+      (parentNode.value.scrollTop % yItemHeight.value);
+    contentNode.value.style.transform = `translate3d(0, ${offset}px, 0)`;
+  });
 };
 
 const initVir = () => {
