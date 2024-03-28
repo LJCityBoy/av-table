@@ -1,7 +1,7 @@
 {
   "name": "av-table",
   "private": false,
-  "version": "1.0.0",
+  "version": "0.0.17",
   "type": "module",
   "main": "dist/av-table.js",
   "module": "dist/av-table.umd.cjs",
