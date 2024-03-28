@@ -129,8 +129,12 @@ const observerAction = () => {
     const observer = new MutationObserver(() => {
       if (currentHeight.value !== parentNode.value.clientHeight) {
         scrollY.value = parentNode.value.clientHeight;
-        placeholderWrapper.value.style.height =
-          yItemHeight.value * props.dataSource.length - scrollY.value + "px";
+        let placeholderHeight =
+          yItemHeight.value * props.dataSource.length - scrollY.value;
+        if (placeholderHeight < 0) {
+          placeholderHeight = 0;
+        }
+        placeholderWrapper.value.style.height = placeholderHeight + "px";
         currentHeight.value = parentNode.value.clientHeight;
         screenHeight.value = parentNode.value.clientHeight;
         const startIdx = Math.floor(
