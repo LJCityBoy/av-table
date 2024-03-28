@@ -124,33 +124,38 @@ const initVir = () => {
     parentNode.value.addEventListener("scroll", scrollEvent);
   }
 };
+const observerAction = () => {
+  if (props.virtualized) {
+    const observer = new MutationObserver(() => {
+      if (currentHeight.value !== parentNode.value.clientHeight) {
+        scrollY.value = parentNode.value.clientHeight;
+        placeholderWrapper.value.style.height =
+          yItemHeight.value * props.dataSource.length - scrollY.value + "px";
+        currentHeight.value = parentNode.value.clientHeight;
+        screenHeight.value = parentNode.value.clientHeight;
+        const startIdx = Math.floor(
+          parentNode.value.scrollTop / yItemHeight.value
+        );
+        const endIdx = startIdx + visibleCount.value;
+        range.value = [startIdx, endIdx];
+        //计算偏移量，让数据在可视区内
+        const offset =
+          parentNode.value.scrollTop -
+          (parentNode.value.scrollTop % yItemHeight.value);
+        contentNode.value.style.transform = `translate3d(0, ${offset}px, 0)`;
+      }
+    });
+    observer.observe(parentNode.value, {
+      attributes: true,
+      childList: true,
+      subtree: true,
+    });
+  }
+};
 
 onMounted(() => {
   initVir();
-  const observer = new MutationObserver(() => {
-    if (currentHeight.value !== parentNode.value.clientHeight) {
-      scrollY.value = parentNode.value.clientHeight;
-      placeholderWrapper.value.style.height =
-        yItemHeight.value * props.dataSource.length - scrollY.value + "px";
-      currentHeight.value = parentNode.value.clientHeight;
-      screenHeight.value = parentNode.value.clientHeight;
-      const startIdx = Math.floor(
-        parentNode.value.scrollTop / yItemHeight.value
-      );
-      const endIdx = startIdx + visibleCount.value;
-      range.value = [startIdx, endIdx];
-      //计算偏移量，让数据在可视区内
-      const offset =
-        parentNode.value.scrollTop -
-        (parentNode.value.scrollTop % yItemHeight.value);
-      contentNode.value.style.transform = `translate3d(0, ${offset}px, 0)`;
-    }
-  });
-  observer.observe(parentNode.value, {
-    attributes: true,
-    childList: true,
-    subtree: true,
-  });
+  observerAction();
 });
 
 onUnmounted(() => {
