@@ -116,7 +116,7 @@ const initVir = () => {
       `.${virtualizedClass.value} .ant-table-body table`
     ) as HTMLDivElement;
     placeholderWrapper.value = document.createElement("div");
-    scrollY.value = parentNode.value.clientHeight
+    scrollY.value = parentNode.value.clientHeight;
     placeholderWrapper.value.style.height =
       yItemHeight.value * props.dataSource.length - scrollY.value + "px";
     parentNode.value.appendChild(placeholderWrapper.value);
@@ -129,9 +129,9 @@ onMounted(() => {
   initVir();
   const observer = new MutationObserver(() => {
     if (currentHeight.value !== parentNode.value.clientHeight) {
-      scrollY.value = parentNode.value.clientHeight
+      scrollY.value = parentNode.value.clientHeight;
       placeholderWrapper.value.style.height =
-        yItemHeight.value * props.dataSource.length - scrollY.value + 'px'
+        yItemHeight.value * props.dataSource.length - scrollY.value + "px";
       currentHeight.value = parentNode.value.clientHeight;
       screenHeight.value = parentNode.value.clientHeight;
       const startIdx = Math.floor(
@@ -194,9 +194,13 @@ watch(
   () => props.dataSource,
   (val) => {
     if (val && props.virtualized) {
-      scrollY.value = parentNode.value.clientHeight
-      placeholderWrapper.value.style.height =
-        yItemHeight.value * props.dataSource.length - scrollY.value + "px";
+      scrollY.value = parentNode.value.clientHeight;
+      let placeholderHeight =
+        yItemHeight.value * props.dataSource.length - scrollY.value;
+      if (placeholderHeight < 0) {
+        placeholderHeight = 0;
+      }
+      placeholderWrapper.value.style.height = placeholderHeight + "px";
       screenHeight.value = parentNode.value.clientHeight;
       const startIdx = 0;
       const endIdx = startIdx + visibleCount.value;
