@@ -80,6 +80,8 @@ const scrollY = ref(0);
 
 const currentHeight = ref(0);
 
+const observer = ref();
+
 const renderList = computed(() => {
   if (props.virtualized) {
     const [start, end] = range.value;
@@ -126,30 +128,32 @@ const initVir = () => {
 };
 const observerAction = () => {
   if (props.virtualized) {
-    const observer = new MutationObserver(() => {
+    observer.value = new MutationObserver(() => {
       if (currentHeight.value !== parentNode.value.clientHeight) {
-        scrollY.value = parentNode.value.clientHeight;
-        let placeholderHeight =
-          yItemHeight.value * props.dataSource.length - scrollY.value;
-        if (placeholderHeight < 0) {
-          placeholderHeight = 0;
-        }
-        placeholderWrapper.value.style.height = placeholderHeight + "px";
-        currentHeight.value = parentNode.value.clientHeight;
-        screenHeight.value = parentNode.value.clientHeight;
-        const startIdx = Math.floor(
-          parentNode.value.scrollTop / yItemHeight.value
-        );
-        const endIdx = startIdx + visibleCount.value;
-        range.value = [startIdx, endIdx];
-        //计算偏移量，让数据在可视区内
-        const offset =
-          parentNode.value.scrollTop -
-          (parentNode.value.scrollTop % yItemHeight.value);
-        contentNode.value.style.transform = `translate3d(0, ${offset}px, 0)`;
+        window.requestAnimationFrame(() => {
+          scrollY.value = parentNode.value.clientHeight;
+          let placeholderHeight =
+            yItemHeight.value * props.dataSource.length - scrollY.value;
+          if (placeholderHeight < 0) {
+            placeholderHeight = 0;
+          }
+          placeholderWrapper.value.style.height = placeholderHeight + "px";
+          currentHeight.value = parentNode.value.clientHeight;
+          screenHeight.value = parentNode.value.clientHeight;
+          const startIdx = Math.floor(
+            parentNode.value.scrollTop / yItemHeight.value
+          );
+          const endIdx = startIdx + visibleCount.value;
+          range.value = [startIdx, endIdx];
+          //计算偏移量，让数据在可视区内
+          const offset =
+            parentNode.value.scrollTop -
+            (parentNode.value.scrollTop % yItemHeight.value);
+          contentNode.value.style.transform = `translate3d(0, ${offset}px, 0)`;
+        });
       }
     });
-    observer.observe(parentNode.value, {
+    observer.value.observe(parentNode.value, {
       attributes: true,
       childList: true,
       subtree: true,
@@ -166,6 +170,7 @@ onUnmounted(() => {
   if (props.virtualized) {
     parentNode.value.removeChild(placeholderWrapper.value);
     parentNode.value.removeEventListener("scroll", scrollEvent);
+    observer.value.disconnect(); //停止监听
   }
 });
 
@@ -200,9 +205,9 @@ watch(
 );
 // 数据变得时候滚动回去
 watch(
-  () => props.dataSource,
-  (val) => {
-    if (val && props.virtualized) {
+  () => [props.dataSource, props.dataSource.length],
+  (val, length) => {
+    if (val && props.virtualized && length) {
       scrollY.value = parentNode.value.clientHeight;
       let placeholderHeight =
         yItemHeight.value * props.dataSource.length - scrollY.value;
