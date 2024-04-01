@@ -155,8 +155,8 @@ const observerAction = () => {
     });
     observer.value.observe(parentNode.value, {
       attributes: true,
-      childList: true,
-      subtree: true,
+      childList: false,
+      subtree: false,
     });
   }
 };
