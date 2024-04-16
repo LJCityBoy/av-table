@@ -36,7 +36,7 @@ const props = defineProps({
   },
   virtualized: {
     type: Boolean,
-    default: false,
+    default: true,
   },
   itemHeight: {
     type: Number,
@@ -117,57 +117,57 @@ const initVir = () => {
     contentNode.value = document.querySelector(
       `.${virtualizedClass.value} .ant-table-body table`
     ) as HTMLDivElement;
-    placeholderWrapper.value = document.createElement("div");
-    scrollY.value = parentNode.value.clientHeight;
-    placeholderWrapper.value.style.height =
-      yItemHeight.value * props.dataSource.length - scrollY.value + "px";
-    parentNode.value.appendChild(placeholderWrapper.value);
-    screenHeight.value = parentNode.value.clientHeight;
-    parentNode.value.addEventListener("scroll", scrollEvent);
+    if (parentNode.value && contentNode.value) {
+      placeholderWrapper.value = document.createElement("div");
+      scrollY.value = parentNode.value.clientHeight;
+      placeholderWrapper.value.style.height =
+        yItemHeight.value * props.dataSource.length - scrollY.value + "px";
+      parentNode.value.appendChild(placeholderWrapper.value);
+      screenHeight.value = parentNode.value.clientHeight;
+      parentNode.value.addEventListener("scroll", scrollEvent);
+      observerAction();
+    }
   }
 };
 const observerAction = () => {
-  if (props.virtualized) {
-    observer.value = new MutationObserver(() => {
-      if (currentHeight.value !== parentNode.value.clientHeight) {
-        window.requestAnimationFrame(() => {
-          scrollY.value = parentNode.value.clientHeight;
-          let placeholderHeight =
-            yItemHeight.value * props.dataSource.length - scrollY.value;
-          if (placeholderHeight < 0) {
-            placeholderHeight = 0;
-          }
-          placeholderWrapper.value.style.height = placeholderHeight + "px";
-          currentHeight.value = parentNode.value.clientHeight;
-          screenHeight.value = parentNode.value.clientHeight;
-          const startIdx = Math.floor(
-            parentNode.value.scrollTop / yItemHeight.value
-          );
-          const endIdx = startIdx + visibleCount.value;
-          range.value = [startIdx, endIdx];
-          //计算偏移量，让数据在可视区内
-          const offset =
-            parentNode.value.scrollTop -
-            (parentNode.value.scrollTop % yItemHeight.value);
-          contentNode.value.style.transform = `translate3d(0, ${offset}px, 0)`;
-        });
-      }
-    });
-    observer.value.observe(parentNode.value, {
-      attributes: true,
-      childList: false,
-      subtree: false,
-    });
-  }
+  observer.value = new MutationObserver(() => {
+    if (currentHeight.value !== parentNode.value.clientHeight) {
+      window.requestAnimationFrame(() => {
+        scrollY.value = parentNode.value.clientHeight;
+        let placeholderHeight =
+          yItemHeight.value * props.dataSource.length - scrollY.value;
+        if (placeholderHeight < 0) {
+          placeholderHeight = 0;
+        }
+        placeholderWrapper.value.style.height = placeholderHeight + "px";
+        currentHeight.value = parentNode.value.clientHeight;
+        screenHeight.value = parentNode.value.clientHeight;
+        const startIdx = Math.floor(
+          parentNode.value.scrollTop / yItemHeight.value
+        );
+        const endIdx = startIdx + visibleCount.value;
+        range.value = [startIdx, endIdx];
+        //计算偏移量，让数据在可视区内
+        const offset =
+          parentNode.value.scrollTop -
+          (parentNode.value.scrollTop % yItemHeight.value);
+        contentNode.value.style.transform = `translate3d(0, ${offset}px, 0)`;
+      });
+    }
+  });
+  observer.value.observe(parentNode.value, {
+    attributes: true,
+    childList: false,
+    subtree: false,
+  });
 };
 
 onMounted(() => {
   initVir();
-  observerAction();
 });
 
 onUnmounted(() => {
-  if (props.virtualized) {
+  if (props.virtualized && parentNode.value) {
     parentNode.value.removeChild(placeholderWrapper.value);
     parentNode.value.removeEventListener("scroll", scrollEvent);
     observer.value.disconnect(); //停止监听
@@ -207,7 +207,13 @@ watch(
 watch(
   () => [props.dataSource, props.dataSource.length],
   (val, length) => {
-    if (val && props.virtualized && length) {
+    if (
+      val &&
+      props.virtualized &&
+      length &&
+      parentNode.value &&
+      contentNode.value
+    ) {
       scrollY.value = parentNode.value.clientHeight;
       let placeholderHeight =
         yItemHeight.value * props.dataSource.length - scrollY.value;
