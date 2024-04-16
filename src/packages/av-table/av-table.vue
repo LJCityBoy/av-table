@@ -9,7 +9,7 @@
       <!-- 通过循环去创建，像emptyText这些，obj值为空的，v-bind="obj"会报错，需要过滤 -->
       <template v-for="(__item, key) in $slots" :key="key" #[key]="obj">
         <slot
-          v-if="['emptyText', 'summary', 'customFilterDropdown'].includes(key as string)"
+          v-if="['emptyText', 'summary'].includes(key as string)"
           :name="key"
         ></slot>
         <!-- 处理切割后序号不连续问题 -->
