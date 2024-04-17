@@ -109,6 +109,8 @@ import {
 } from "ant-design-vue";
 import { DownOutlined } from "@ant-design/icons-vue";
 import dayjs from "dayjs";
+import { AVTable } from "./packages/index";
+
 const dataSource = Array.from(
   Array(1000).fill({
     key: "1",

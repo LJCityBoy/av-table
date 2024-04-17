@@ -28,7 +28,6 @@
   },
   "dependencies": {
     "ant-design-vue": "3.2.20",
-    "av-table": "^0.0.1",
     "vue": "^3.4.21"
   },
   "devDependencies": {

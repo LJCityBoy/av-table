@@ -10,7 +10,7 @@
 
 <a href="https://www.npmjs.com/package/av-table?activeTab=readme">npm包下载地址</a>
 
-<a href="http://110.41.134.38/av-table/index.html">av-table在线演示地址</a>
+<a href="http://43.136.51.203/av-table/index.html">av-table在线演示地址</a>
 
 ## 简介
 * 用ant-design-vue的用户可能会遇到过一些性能上的烦恼：当页面中表格数据量达到一定量级的时候，滚动页面会变得非常卡顿。由于开发过程中疏忽了卡顿问题，等到项目进度已经100%的时候再回头去优化，发现如果要替换掉项目中原有的a-table代码改动量大，时间成本特别高，还存在一定的未知风险。未来解决这个烦恼，本人稍微改动了一下a-table，使其加载10w条数据也不会出现卡顿。所以，av-table就出现了。
