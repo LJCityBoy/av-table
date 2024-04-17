@@ -8,9 +8,3 @@ export default {
 };
 
 export { AVTable };
-
-declare module "vue" {
-  export interface GlobalComponents {
-    AVTable: typeof AVTable;
-  }
-}
