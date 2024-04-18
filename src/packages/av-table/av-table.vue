@@ -142,8 +142,8 @@ const onSelectChange = <T extends SelectionSelectFn<T>>(
       .values()
   );
   return (props.rowSelection.onChange as Function)(
-    selectedRowKeysTem,
-    selectedRowsTem
+    selectedRowKeysTem.value,
+    selectedRowsTem.value
   );
 };
 
@@ -191,7 +191,7 @@ const onSelectAllAction = <T extends SelectionSelectFn<T>>(
     selectedRowsTem.value = props.dataSource;
   } else {
     selectedRowKeysTem.value = [];
-    selectedRowKeysTem.value = [];
+    selectedRowsTem.value = [];
   }
   if (typeof props.rowSelection.onSelectAll === "function") {
     return (props.rowSelection.onSelectAll as Function)(
