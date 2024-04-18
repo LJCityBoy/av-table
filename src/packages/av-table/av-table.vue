@@ -131,16 +131,21 @@ const onSelectChange = <T extends SelectionSelectFn<T>>(
   selectedRowKeys: Key[],
   selectedRows: T[]
 ) => {
-  const keyArr = [
-    ...new Set([...selectedRowKeysTem.value, ...selectedRowKeys]),
-  ];
-  selectedRowKeysTem.value = keyArr;
-  const rowArr = [...selectedRowsTem.value, ...selectedRows];
-  selectedRowsTem.value = Array.from(
-    rowArr
-      .reduce((map, obj) => map.set(JSON.stringify(obj), obj), new Map())
-      .values()
-  );
+  if (props.rowSelection.type === "radio") {
+    selectedRowKeysTem.value = selectedRowKeys;
+    selectedRowsTem.value = selectedRows;
+  } else {
+    const keyArr = [
+      ...new Set([...selectedRowKeysTem.value, ...selectedRowKeys]),
+    ];
+    selectedRowKeysTem.value = keyArr;
+    const rowArr = [...selectedRowsTem.value, ...selectedRows];
+    selectedRowsTem.value = Array.from(
+      rowArr
+        .reduce((map, obj) => map.set(JSON.stringify(obj), obj), new Map())
+        .values()
+    );
+  }
   return (props.rowSelection.onChange as Function)(
     selectedRowKeysTem.value,
     selectedRowsTem.value
