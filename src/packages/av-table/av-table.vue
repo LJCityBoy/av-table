@@ -432,7 +432,7 @@ watch(
 );
 </script>
 
-<style scoped lang="less">
+<style scoped>
 .y-virtualized {
   position: relative;
   height: auto;
