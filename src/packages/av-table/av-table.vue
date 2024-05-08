@@ -360,6 +360,13 @@ function generateUniqueRandomPositiveInteger() {
   return uniqueRandomNumber;
 }
 
+//数组对比
+function findChanges(oldArray: Key[], newArray: Key[]) {
+  // const added = newArray.filter((item) => !oldArray.includes(item))
+  const removed = oldArray.filter((item) => !newArray.includes(item));
+  return { removed };
+}
+
 watch(
   () => props.size,
   (val) => {
@@ -414,17 +421,23 @@ watch(
 watch(
   () => props.rowSelection,
   (newVal, OldVal) => {
-    if (newVal.selectedRowKeys !== OldVal.selectedRowKeys) {
+    if (newVal.selectedRowKeys?.length !== OldVal.selectedRowKeys?.length) {
       if (props.rowSelection.type === "radio") {
         selectedRowKeysTem.value = newVal.selectedRowKeys as Key[];
       } else {
+        //对比数组找出新增与删除的
+        const { removed } = findChanges(
+          OldVal.selectedRowKeys as Key[],
+          newVal.selectedRowKeys as Key[]
+        );
         const keyArr = [
-          ...new Set([
-            ...selectedRowKeysTem.value,
-            ...(newVal.selectedRowKeys as Key[]),
-          ]),
+          ...selectedRowKeysTem.value,
+          ...(newVal.selectedRowKeys as Key[]),
         ];
-        selectedRowKeysTem.value = keyArr;
+        if (removed.length > 0)
+          selectedRowKeysTem.value = keyArr.filter(
+            (item) => removed.indexOf(item) === -1
+          );
       }
       initSelectionColumn();
     }
