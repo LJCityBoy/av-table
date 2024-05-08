@@ -1,16 +1,11 @@
 <template>
   <div :class="[virtualized && `box-${virtualizedClass}`]">
     <v-table
+      v-bind="$attrs"
       :data-source="renderList"
       :size="size"
       :class="[virtualized && virtualizedClass]"
-      :row-selection="rowSelection ? {
-        ...(rowSelection as TableRowSelection),
-        onChange: onSelectChange,
-        onSelectAll: onSelectAllAction,
-        onSelect: onSelectAction,
-      }: undefined"
-      v-bind="$attrs"
+      :row-selection="setRowSelection()"
     >
       <!-- 通过循环去创建，像emptyText这些，obj值为空的，v-bind="obj"会报错，需要过滤 -->
       <template v-for="(__item, key) in $slots" :key="key" #[key]="obj">
@@ -47,7 +42,10 @@ import {
   watch,
   Ref,
   useAttrs,
+  h,
+  render,
 } from "vue";
+import vCheckBox from "./components/check-box.vue";
 
 const props = defineProps({
   dataSource: {
@@ -113,6 +111,25 @@ const scrollY = ref(0);
 const currentHeight = ref(0);
 
 const observer = ref();
+
+const selectionColumn = ref();
+const antSelection = ref();
+
+//勾选配置项
+const setRowSelection = () => {
+  if (props.virtualized) {
+    if (props.rowSelection) {
+      return {
+        ...props.rowSelection,
+        onChange: onSelectChange,
+        onSelectAll: onSelectAllAction,
+        onSelect: onSelectAction,
+      };
+    }
+    return undefined;
+  }
+  return props.rowSelection || undefined;
+};
 
 const renderList = computed(() => {
   if (props.virtualized) {
@@ -185,8 +202,8 @@ const onSelectAction = <T extends SelectionSelectFn<T>>(
 
 const onSelectAllAction = <T extends SelectionSelectFn<T>>(
   selected: boolean,
-  selectedRows: T[],
-  changeRows: T[]
+  selectedRows?: T[],
+  changeRows?: T[]
 ) => {
   if (selected) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -195,8 +212,16 @@ const onSelectAllAction = <T extends SelectionSelectFn<T>>(
     });
     selectedRowsTem.value = props.dataSource;
   } else {
-    selectedRowKeysTem.value = [];
-    selectedRowsTem.value = [];
+    if (selectedRowKeysTem.value.length != props.dataSource.length) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      selectedRowKeysTem.value = props.dataSource.map((item: any) => {
+        return item[attrs["row-key"] as string];
+      });
+      selectedRowsTem.value = props.dataSource;
+    } else {
+      selectedRowKeysTem.value = [];
+      selectedRowKeysTem.value = [];
+    }
   }
   if (typeof props.rowSelection.onSelectAll === "function") {
     return (props.rowSelection.onSelectAll as Function)(
@@ -275,8 +300,45 @@ const observerAction = () => {
   });
 };
 
+//自定义的勾选按钮逻辑
+const initSelectionColumn = () => {
+  if (props.virtualized) {
+    if (!selectionColumn.value) {
+      selectionColumn.value = document.querySelector(
+        `.${virtualizedClass.value} .ant-table-thead .ant-table-selection-column`
+      );
+      antSelection.value = document.querySelector(
+        `.${virtualizedClass.value} .ant-table-thead .ant-table-selection-column .ant-table-selection`
+      );
+    }
+    if (selectionColumn.value && antSelection.value) {
+      antSelection.value.classList.add("custom-selection");
+      render(
+        h(vCheckBox, {
+          dataSourceLength: props.dataSource.length | 0,
+          selectLength: selectedRowKeysTem.value.length | 0,
+          ["onCheckAllChange"]: checkAllChange,
+        }),
+        selectionColumn.value
+      );
+    }
+  }
+};
+//自定义全选触发
+const checkAllChange = (selected: boolean) => {
+  // onSelectAllAction(selected)
+  if (selected) {
+    selectedRowKeysTem.value = props.dataSource.map((item) => {
+      return item[attrs["row-key"] as string];
+    });
+  } else {
+    selectedRowKeysTem.value = [];
+  }
+};
+
 onMounted(() => {
   initVir();
+  initSelectionColumn();
 });
 
 onUnmounted(() => {
@@ -284,6 +346,7 @@ onUnmounted(() => {
     parentNode.value.removeChild(placeholderWrapper.value);
     parentNode.value.removeEventListener("scroll", scrollEvent);
     observer.value.disconnect(); //停止监听
+    selectionColumn.value = null;
   }
 });
 
@@ -341,14 +404,43 @@ watch(
       //重置滚动条
       parentNode.value.scrollTop = 0;
       contentNode.value.style.transform = `translate3d(0, ${0}px, 0)`;
+      selectedRowKeysTem.value = [];
+      selectedRowsTem.value = [];
+      initSelectionColumn();
+    }
+  }
+);
+
+watch(
+  () => props.rowSelection,
+  (newVal, OldVal) => {
+    if (newVal.selectedRowKeys !== OldVal.selectedRowKeys) {
+      if (props.rowSelection.type === "radio") {
+        selectedRowKeysTem.value = newVal.selectedRowKeys as Key[];
+      } else {
+        const keyArr = [
+          ...new Set([
+            ...selectedRowKeysTem.value,
+            ...(newVal.selectedRowKeys as Key[]),
+          ]),
+        ];
+        selectedRowKeysTem.value = keyArr;
+      }
+      initSelectionColumn();
     }
   }
 );
 </script>
 
-<style scoped>
+<style scoped lang="less">
 .y-virtualized {
   position: relative;
   height: auto;
+}
+:deep(.custom-selection) {
+  position: absolute !important;
+  left: calc(50% - 8px);
+  z-index: 1000;
+  opacity: 0;
 }
 </style>
