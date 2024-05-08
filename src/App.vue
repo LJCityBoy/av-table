@@ -7,6 +7,14 @@
       :columns="columns"
       :scroll="{ y: '400px' }"
       :pagination="false"
+      row-key="key"
+      :row-selection="{
+        selectedRowKeys: selectedRowKeys,
+        onChange: onSelectChange,
+        fixed: 'left',
+        type: 'checkbox',
+        checkStrictly: false,
+      }"
     >
       <template #bodyCell="{ column }">
         <template v-if="column.dataIndex === 'operation'">
@@ -22,6 +30,7 @@
       :virtualized="true"
       :scroll="{ y: '400px' }"
       :bordered="true"
+      row-key="key"
       @resize-column="handleResizeColumn"
     >
       <template #bodyCell="{ column, text, record }">
@@ -50,6 +59,7 @@
       :virtualized="true"
       :scroll="{ y: '400px' }"
       :bordered="true"
+      row-key="key"
       class="components-table-demo-nested"
     >
       <template #bodyCell="{ column }">
@@ -96,7 +106,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {
   Input as AInput,
   DatePicker as ADatePicker,
@@ -110,6 +120,8 @@ import {
 import { DownOutlined } from "@ant-design/icons-vue";
 import dayjs from "dayjs";
 import { AVTable } from "./packages/index";
+import { Ref, ref } from "vue";
+import { Key } from "ant-design-vue/lib/table/interface";
 
 const dataSource = Array.from(
   Array(1000).fill({
@@ -175,6 +187,13 @@ const innerColumns = [
     key: "operation",
   },
 ];
+
+const selectedRowKeys: Ref<Key[]> = ref([]);
+
+const onSelectChange = (selectKeys: Key[], __selectKeysRow: any[]) => {
+  __selectKeysRow;
+  selectedRowKeys.value = selectKeys;
+};
 </script>
 
 <style scoped>
