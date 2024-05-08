@@ -190,6 +190,8 @@ const innerColumns = [
 
 const selectedRowKeys: Ref<Key[]> = ref([]);
 
+const handleResizeColumn = () => {};
+
 const onSelectChange = (selectKeys: Key[], __selectKeysRow: any[]) => {
   __selectKeysRow;
   selectedRowKeys.value = selectKeys;
