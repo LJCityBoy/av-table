@@ -2,12 +2,14 @@
   <div id="app">
     <a-divider><h1>示例1</h1></a-divider>
     <AVTable
-      :dataSource="dataSource"
+      :dataSource="columns.length > 0 ? dataSource : []"
       :virtualized="true"
       :columns="columns"
       :scroll="{ y: '400px' }"
       :pagination="false"
       row-key="key"
+      :loading="loading"
+      :custom-row="customRow"
       :row-selection="{
         selectedRowKeys: selectedRowKeys,
         onChange: onSelectChange,
@@ -28,6 +30,7 @@
       :columns="columns"
       :pagination="false"
       :virtualized="true"
+      :loading="loading"
       :scroll="{ y: '400px' }"
       :bordered="true"
       row-key="key"
@@ -59,6 +62,7 @@
       :virtualized="true"
       :scroll="{ y: '400px' }"
       :bordered="true"
+      :loading="loading"
       row-key="key"
       class="components-table-demo-nested"
     >
@@ -72,6 +76,7 @@
           :columns="innerColumns"
           :data-source="innerData"
           :pagination="false"
+          :loading="loading"
         >
           <template #bodyCell="{ column }">
             <template v-if="column.key === 'state'">
@@ -116,6 +121,7 @@ import {
   Menu as AMenu,
   MenuItem as AMenuItem,
   Divider as ADivider,
+  TableColumnType,
 } from "ant-design-vue";
 import { DownOutlined } from "@ant-design/icons-vue";
 import dayjs from "dayjs";
@@ -135,36 +141,48 @@ const dataSource = Array.from(
   (item, index) => ({ ...item, name: `${item.name}${index}`, key: index })
 );
 
-const columns = [
+const columns: Ref<TableColumnType[]> = ref([
   {
-    title: "名称",
-    dataIndex: "name",
-    key: "name",
+    title: "",
+    dataIndex: "jksa",
+    key: "jksa",
   },
-  {
-    title: "年龄",
-    dataIndex: "age",
-    key: "age",
-  },
-  {
-    title: "入职日期",
-    dataIndex: "joinDate",
-    key: "joinDate",
-    width: 180,
-    resizable: true,
-  },
-  {
-    title: "特征",
-    dataIndex: "tag",
-    key: "tag",
-  },
-  {
-    title: "工作单位",
-    dataIndex: "address",
-    key: "address",
-  },
-  { title: "操作", dataIndex: "operation", key: "operation" },
-];
+]);
+const loading = ref(true);
+
+setTimeout(() => {
+  columns.value = [
+    {
+      title: "名称",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "年龄",
+      dataIndex: "age",
+      key: "age",
+    },
+    {
+      title: "入职日期",
+      dataIndex: "joinDate",
+      key: "joinDate",
+      width: 180,
+      resizable: true,
+    },
+    {
+      title: "特征",
+      dataIndex: "tag",
+      key: "tag",
+    },
+    {
+      title: "工作单位",
+      dataIndex: "address",
+      key: "address",
+    },
+    { title: "操作", dataIndex: "operation", key: "operation" },
+  ];
+  loading.value = false;
+}, 15 * 1000);
 
 const innerData = Array.from(
   Array(4).fill({
@@ -195,6 +213,16 @@ const handleResizeColumn = () => {};
 const onSelectChange = (selectKeys: Key[], __selectKeysRow: any[]) => {
   __selectKeysRow;
   selectedRowKeys.value = selectKeys;
+};
+
+// 点击行回调
+const customRow = (record: any) => {
+  return {
+    //单击行
+    onClick: () => {
+      selectedRowKeys.value.push(record.key);
+    },
+  };
 };
 </script>
 
