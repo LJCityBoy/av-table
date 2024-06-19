@@ -1,14 +1,15 @@
 <template>
   <div id="app">
-    <a-divider><h1>示例</h1></a-divider>
-    <NewTable
-      :columns="columns"
-      :data-source="dataSource"
-      :pagination="false"
+    <a-divider><h1>示例1</h1></a-divider>
+    <AVTable
+      :dataSource="columns.length > 0 ? dataSource : []"
       :virtualized="true"
+      :columns="columns"
       :scroll="{ y: '400px' }"
-      :bordered="true"
+      :pagination="false"
+      row-key="key"
       :loading="loading"
+      :custom-row="customRow"
       :row-selection="{
         selectedRowKeys: selectedRowKeys,
         onChange: onSelectChange,
@@ -16,6 +17,52 @@
         type: 'checkbox',
         checkStrictly: false,
       }"
+    >
+      <template #bodyCell="{ column }">
+        <template v-if="column.dataIndex === 'operation'">
+          <a>Publish</a>
+        </template>
+      </template>
+    </AVTable>
+    <a-divider><h1>示例2</h1></a-divider>
+    <AVTable
+      :data-source="dataSource"
+      :columns="columns"
+      :pagination="false"
+      :virtualized="true"
+      :loading="loading"
+      :scroll="{ y: '400px' }"
+      :bordered="true"
+      row-key="key"
+      @resize-column="handleResizeColumn"
+    >
+      <template #bodyCell="{ column, text, record }">
+        <template v-if="column.dataIndex === 'name'">
+          <a-input v-model:value="record[column.dataIndex]" />
+        </template>
+        <template v-else-if="column.dataIndex === 'age'">
+          <a-input-number v-model:value="record[column.dataIndex]" />
+        </template>
+        <template v-else-if="column.dataIndex === 'joinDate'">
+          <a-date-picker v-model:value="record[column.dataIndex]" />
+        </template>
+        <template v-else-if="column.dataIndex === 'operation'">
+          <a>这是操作按钮</a>
+        </template>
+        <template v-else>
+          <span>{{ text }}</span>
+        </template>
+      </template>
+    </AVTable>
+    <a-divider><h1>示例3</h1></a-divider>
+    <AVTable
+      :columns="columns"
+      :data-source="dataSource"
+      :pagination="false"
+      :virtualized="true"
+      :scroll="{ y: '400px' }"
+      :bordered="true"
+      :loading="loading"
       row-key="key"
       class="components-table-demo-nested"
     >
@@ -25,12 +72,11 @@
         </template>
       </template>
       <template #expandedRowRender>
-        <NewTable
+        <AVTable
           :columns="innerColumns"
           :data-source="innerData"
           :pagination="false"
           :loading="loading"
-          row-key="key"
         >
           <template #bodyCell="{ column }">
             <template v-if="column.key === 'state'">
@@ -58,14 +104,18 @@
               </span>
             </template>
           </template>
-        </NewTable>
+        </AVTable>
       </template>
-    </NewTable>
+    </AVTable>
+    <a-divider><h1>其他示例自己看ant-design-vue,谢谢！</h1></a-divider>
   </div>
 </template>
 
 <script setup lang="ts">
 import {
+  Input as AInput,
+  DatePicker as ADatePicker,
+  InputNumber as AInputNumber,
   Badge as ABadge,
   Dropdown as ADropdown,
   Menu as AMenu,
@@ -75,14 +125,14 @@ import {
 } from "ant-design-vue";
 import { DownOutlined } from "@ant-design/icons-vue";
 import dayjs from "dayjs";
-import { NewTable } from "./packages/index";
+import { AVTable } from "./packages/index";
 import { Ref, ref } from "vue";
 import { Key } from "ant-design-vue/lib/table/interface";
 
 const dataSource = Array.from(
-  Array(200).fill({
+  Array(1000).fill({
     key: "1",
-    name: "牛马人生",
+    name: "蒋哥哥",
     age: 18,
     joinDate: dayjs("2020-10-20", "YYYY-MM-DD"),
     address: "东莞xxxX电子厂",
@@ -102,11 +152,6 @@ const loading = ref(true);
 
 setTimeout(() => {
   columns.value = [
-    {
-      title: "序号",
-      dataIndex: "key",
-      key: "key",
-    },
     {
       title: "名称",
       dataIndex: "name",
@@ -130,14 +175,14 @@ setTimeout(() => {
       key: "tag",
     },
     {
-      title: "工作单位1",
+      title: "工作单位",
       dataIndex: "address",
       key: "address",
     },
     { title: "操作", dataIndex: "operation", key: "operation" },
   ];
   loading.value = false;
-}, 10 * 100);
+}, 15 * 1000);
 
 const innerData = Array.from(
   Array(4).fill({
@@ -163,9 +208,21 @@ const innerColumns = [
 
 const selectedRowKeys: Ref<Key[]> = ref([]);
 
+const handleResizeColumn = () => {};
+
 const onSelectChange = (selectKeys: Key[], __selectKeysRow: any[]) => {
   __selectKeysRow;
   selectedRowKeys.value = selectKeys;
+};
+
+// 点击行回调
+const customRow = (record: any) => {
+  return {
+    //单击行
+    onClick: () => {
+      selectedRowKeys.value.push(record.key);
+    },
+  };
 };
 </script>
 
